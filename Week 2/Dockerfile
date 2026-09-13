@@ -1,7 +1,7 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
 COPY auditor.py .
 
-ENTRYPOINT ["python", "auditor.py"]
+CMD ["python", "auditor.py"]
