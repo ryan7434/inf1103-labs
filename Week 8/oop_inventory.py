@@ -10,6 +10,9 @@ class Product:
         self.__price = price
         self.__stock = stock
 
+    def get_product_id(self):
+            return self.__product_id
+
     def update_stock(self, new_stock):
         self.__stock = new_stock
 
@@ -18,6 +21,31 @@ class Product:
         print(f"Name: {self.__name}")
         print(f"Price: ${self.__price:.2f}")
         print(f"Stock: {self.__stock}")
+
+
+class Inventory:
+    def __init__(self):
+        self.__products = []
+
+    def add_product(self, product):
+        self.__products.append(product)
+        print("Product added successfully.")
+
+    def search_product(self, product_id):
+        for product in self.__products:
+            if product.get_product_id() == product_id:
+                return product
+
+        return None
+
+    def display_all(self):
+        print("Current Inventory")
+        print("-" * 50)
+
+        for product in self.__products:
+            product.display_information()
+            print("-" * 50)
+
 
 
 inventory = [
@@ -133,5 +161,3 @@ def main():
 #main()
 if __name__ == "__main__":
     main()
-
-
