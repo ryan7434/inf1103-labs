@@ -12,6 +12,23 @@ class Product:
 
     def get_product_id(self):
             return self.__product_id
+    
+    def get_product_name(self):
+        return self.__name
+    
+    def get_product_price(self):
+        return self.__price
+
+    def get_stock(self):
+        return self.__stock
+
+    def to_dict(self):
+        return {
+            "id": self.__product_id,
+            "name": self.__name,
+            "price": self.__price,
+            "stock": self.__stock
+        }
 
     def update_stock(self, new_stock):
         self.__stock = new_stock
@@ -46,6 +63,9 @@ class Inventory:
             product.display_information()
             print("-" * 50)
 
+    def get_products(self):
+        return self.__products
+
 
 
 inventory = [
@@ -71,6 +91,47 @@ def save_inventory(inventory):
     with open(INVENTORY_FILE, "w") as file:
         json.dump(inventory, file, indent=4)
         print("Inventory saved successfully to inventory.json.")
+
+
+def load_inventory_oop():
+    inventory = Inventory()
+
+    try:
+        with open(INVENTORY_FILE, "r") as file:
+            data = json.load(file)
+
+        for item in data:
+            product = Product(
+                item["id"],
+                item["name"],
+                item["price"],
+                item["stock"]
+            )
+            inventory.add_product(product)
+
+        print("Inventory loaded successfully.")
+        return inventory
+
+    except FileNotFoundError:
+        print("Inventory file not found. Starting with empty inventory.")
+        return inventory
+
+    except json.JSONDecodeError:
+        print("Invalid data in inventory file. Starting with empty inventory.")
+        return inventory
+
+
+def save_inventory_oop(inventory):
+    data = []
+
+    for product in inventory.get_products():
+        data.append(product.to_dict())
+
+    with open(INVENTORY_FILE, "w") as file:
+        json.dump(data, file, indent=4)
+
+    print("Inventory saved successfully to inventory.json.")
+
 
 def display_all(inventory):
     print("Current Inventory")
@@ -158,6 +219,7 @@ def main():
             break
         else:
             print("Invalid choice. Please try again.")
+
 #main()
 if __name__ == "__main__":
     main()
