@@ -65,6 +65,12 @@ class PhysicalProduct(Product, CanBeShipped):
     def calculate_shipping_cost(self):
         return self.__weight * 5 
 
+    def to_dict(self):
+        data = super().to_dict()
+        data["type"] = "physical"
+        data["weight"] = self.__weight
+        return data
+
 class DigitalProduct(Product):
     def __init__(self, product_id, name, price, stock, download_size):
         super().__init__(product_id, name, price, stock)
@@ -76,6 +82,12 @@ class DigitalProduct(Product):
 
     def get_fulfilment_info(self):
         return "This product can be delivered digitally."
+
+    def to_dict(self):
+        data = super().to_dict()
+        data["type"] = "digital"
+        data["download_size"] = self.__download_size
+        return data
 
 class Inventory:
     def __init__(self):
@@ -116,12 +128,29 @@ def load_inventory():
             data = json.load(file)
 
         for item in data:
-            product = Product(
-                item["id"],
-                item["name"],
-                item["price"],
-                item["stock"]
-            )
+
+            if item["type"] == "physical":
+                product = PhysicalProduct(
+                    item["id"],
+                    item["name"],
+                    item["price"],
+                    item["stock"],
+                    item["weight"]
+                )
+
+            elif item["type"] == "digital":
+                product = DigitalProduct(
+                    item["id"],
+                    item["name"],
+                    item["price"],
+                    item["stock"],
+                    item["download_size"]
+                )
+
+            else:
+                print("Unknown product type. Skipping item.")
+                continue    
+
             inventory.add_product(product)
 
         print("Inventory loaded successfully.")
@@ -130,9 +159,14 @@ def load_inventory():
     except FileNotFoundError:
         print("Inventory file not found. Starting with empty inventory.")
         return inventory
-
+    
     except json.JSONDecodeError:
         print("Invalid data in inventory file. Starting with empty inventory.")
+        return inventory
+
+    except KeyError:
+        print("Inventory file uses an old or invalid format.")
+        print("Please back up or remove the old inventory.json file.")
         return inventory
 
 
@@ -215,6 +249,9 @@ def main():
                         continue
 
                     product = DigitalProduct(product_id, name, price, stock, download_size)
+
+                inventory.add_product(product)
+                print("Product added successfully.")
 
             except ValueError:
                 print("Invalid input. Please enter valid inputs.")

@@ -1,1 +1,18 @@
-[]
+[
+    {
+        "id": "P001",
+        "name": "Laptop",
+        "price": 1200.0,
+        "stock": 15,
+        "type": "physical",
+        "weight": 2.5
+    },
+    {
+        "id": "D001",
+        "name": "Software",
+        "price": 99.0,
+        "stock": 10,
+        "type": "digital",
+        "download_size": 500.0
+    }
+]
