@@ -1,0 +1,233 @@
+import os
+import json
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+INVENTORY_FILE = os.path.join(SCRIPT_DIR, "inventory.json")
+
+class Product:
+    def __init__(self, product_id, name, price, stock):
+        self.__product_id = product_id
+        self.__name = name
+        self.__price = price
+        self.__stock = stock
+
+    def get_product_id(self):
+        return self.__product_id
+    
+    def get_product_name(self):
+        return self.__name
+    
+    def get_product_price(self):
+        return self.__price
+
+    def get_stock(self):
+        return self.__stock
+
+    def to_dict(self):
+        return {
+            "id": self.__product_id,
+            "name": self.__name,
+            "price": self.__price,
+            "stock": self.__stock
+        }
+
+    def update_stock(self, new_stock):
+        self.__stock = new_stock
+
+    def display_information(self):
+        print(f"ID: {self.__product_id}")
+        print(f"Name: {self.__name}")
+        print(f"Price: ${self.__price:.2f}")
+        print(f"Stock: {self.__stock}")
+
+class PhysicalProduct(Product):
+    def __init__(self, product_id, name, price, stock, weight):
+        super().__init__(product_id, name, price, stock)
+        self.__weight = weight
+
+    def display_information(self):
+        super().display_information()
+        print(f"Weight: {self.__weight} kg")
+
+class DigitalProduct(Product):
+    def __init__(self, product_id, name, price, stock, download_size):
+        super().__init__(product_id, name, price, stock)
+        self.__download_size = download_size
+
+    def display_information(self):
+        super().display_information()
+        print(f"Download Size: {self.__download_size} MB")
+
+class Inventory:
+    def __init__(self):
+        self.__products = []
+
+    def add_product(self, product):
+        self.__products.append(product)
+
+    def search_product(self, product_id):
+        for product in self.__products:
+            if product.get_product_id() == product_id:
+                return product
+
+        return None
+
+    def display_all(self):
+        print("Current Inventory")
+        print("-" * 50)
+
+        for product in self.__products:
+            product.display_information()
+            print("-" * 50)
+
+    def get_products(self):
+        return self.__products
+
+    
+def load_inventory():
+    inventory = Inventory()
+
+    try:
+        with open(INVENTORY_FILE, "r") as file:
+            data = json.load(file)
+
+        for item in data:
+            product = Product(
+                item["id"],
+                item["name"],
+                item["price"],
+                item["stock"]
+            )
+            inventory.add_product(product)
+
+        print("Inventory loaded successfully.")
+        return inventory
+
+    except FileNotFoundError:
+        print("Inventory file not found. Starting with empty inventory.")
+        return inventory
+
+    except json.JSONDecodeError:
+        print("Invalid data in inventory file. Starting with empty inventory.")
+        return inventory
+
+
+def save_inventory(inventory):
+    data = []
+
+    for product in inventory.get_products():
+        data.append(product.to_dict())
+
+    with open(INVENTORY_FILE, "w") as file:
+        json.dump(data, file, indent=4)
+
+    print("Inventory saved successfully to inventory.json.")
+
+
+
+def main():
+    inventory = load_inventory()
+
+    while True:
+        print()
+        print("========================================")
+        print(" INVENTORY MANAGEMENT SYSTEM")
+        print("========================================")
+        print("----------- MENU -----------")
+        print("1. Display All Products")
+        print("2. Add Product")
+        print("3. Update Stock")
+        print("4. Search Product")
+        print("5. Save Inventory")
+        print("6. Exit")
+        print("----------------------------")
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            inventory.display_all()
+
+        elif choice == "2":
+            print("Add New Product")
+
+            product_id = input("Product ID: ")
+
+            if inventory.search_product(product_id) is not None:
+                print("Product ID already exists.")
+                continue
+
+            name = input("Product Name: ")
+
+            try:
+                price = float(input("Product Price: "))
+                stock = int(input("Product Stock: "))
+
+                if price < 0 or stock < 0:
+                    print("Price and stock cannot be negative.")
+                    continue
+
+                product = Product(product_id, name, price, stock)
+                inventory.add_product(product)
+                print("Product added successfully.")
+
+            except ValueError:
+                print("Invalid input. Please enter a number for price and stock.")
+
+        elif choice == "3":
+            print("Update Stock")
+            product_id = input("Enter Product ID: ")
+
+            product = inventory.search_product(product_id)
+
+            if product is not None:
+                print("Product found:")
+                print(f"Name: {product.get_product_name()}")
+                print(f"Current Stock: {product.get_stock()}")
+
+                try:
+                    new_stock = int(
+                        input("Enter new stock: ")
+                    )
+
+                    if new_stock < 0:
+                        print("Stock cannot be negative.")
+                    else:
+                        product.update_stock(new_stock)
+                        print("Stock updated successfully.")
+
+                except ValueError:
+                    print("Invalid stock. Please enter a whole number.")
+
+            else:
+                print("Product not found.")
+
+        elif choice == "4":
+            print("Search Product")
+            product_id = input("Enter Product ID: ")
+
+            product = inventory.search_product(product_id)
+
+            if product is not None:
+                print("Product Found")
+                print("-" * 50)
+                product.display_information()
+                print("-" * 50)
+            else:
+                print("Product not found.")
+
+        elif choice == "5":
+            print("Saving inventory to inventory.json...")
+            save_inventory(inventory)
+
+        elif choice == "6":
+            print("Saving inventory to inventory.json...")
+            save_inventory(inventory)
+            print("Thank you for using the Inventory Management System.")
+            print("Program terminated.")
+            break
+
+        else:
+            print("Invalid choice. Please try again.")
+
+#main()
+if __name__ == "__main__":
+    main()
