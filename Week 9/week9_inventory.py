@@ -1,9 +1,10 @@
 import os
 import json
+from abc import ABC, abstractmethod
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INVENTORY_FILE = os.path.join(SCRIPT_DIR, "inventory.json")
 
-class Product:
+class Product(ABC):
     def __init__(self, product_id, name, price, stock):
         self.__product_id = product_id
         self.__name = name
@@ -39,6 +40,10 @@ class Product:
         print(f"Price: ${self.__price:.2f}")
         print(f"Stock: {self.__stock}")
 
+    @abstractmethod
+    def get_fulfilment_info(self):
+        pass
+
 class PhysicalProduct(Product):
     def __init__(self, product_id, name, price, stock, weight):
         super().__init__(product_id, name, price, stock)
@@ -48,6 +53,9 @@ class PhysicalProduct(Product):
         super().display_information()
         print(f"Weight: {self.__weight} kg")
 
+    def get_fulfilment_info(self):
+        return "This product requires physical shipping."
+
 class DigitalProduct(Product):
     def __init__(self, product_id, name, price, stock, download_size):
         super().__init__(product_id, name, price, stock)
@@ -56,6 +64,9 @@ class DigitalProduct(Product):
     def display_information(self):
         super().display_information()
         print(f"Download Size: {self.__download_size} MB")
+
+    def get_fulfilment_info(self):
+        return "This product can be delivered digitally."
 
 class Inventory:
     def __init__(self):
