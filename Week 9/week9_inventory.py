@@ -95,8 +95,13 @@ class Inventory:
         print("Current Inventory")
         print("-" * 50)
 
+        if len(self.__products) == 0:
+            print("Inventory is empty.")
+            return
+
         for product in self.__products:
             product.display_information()
+            print(f"Fulfilment: {product.get_fulfilment_info()}")
             print("-" * 50)
 
     def get_products(self):
@@ -168,29 +173,51 @@ def main():
 
         elif choice == "2":
             print("Add New Product")
+            print("1. Physical Product")
+            print("2. Digital Product")
 
-            product_id = input("Product ID: ")
+            product_type = input("Enter product type (1 or 2): ")
+
+            if product_type not in ["1", "2"]:
+                print("Invalid product type. Please try again.")
+                continue
+
+            product_id = input("Enter Product ID: ")
 
             if inventory.search_product(product_id) is not None:
                 print("Product ID already exists.")
                 continue
 
-            name = input("Product Name: ")
+            name = input("Enter Product Name: ")
 
             try:
-                price = float(input("Product Price: "))
-                stock = int(input("Product Stock: "))
+                price = float(input("Enter Product Price: "))
+                stock = int(input("Enter Product Stock: "))
 
                 if price < 0 or stock < 0:
                     print("Price and stock cannot be negative.")
                     continue
 
-                product = Product(product_id, name, price, stock)
-                inventory.add_product(product)
-                print("Product added successfully.")
+                if product_type == "1":
+                    weight = float(input("Enter Product Weight (kg): "))
+
+                    if weight < 0:
+                        print("Weight must be greater than zero.")
+                        continue
+
+                    product = PhysicalProduct(product_id, name, price, stock, weight)
+
+                else:
+                    download_size = float(input("Enter Download Size (MB): "))
+
+                    if download_size <= 0:
+                        print("Download size must be greater than zero.")
+                        continue
+
+                    product = DigitalProduct(product_id, name, price, stock, download_size)
 
             except ValueError:
-                print("Invalid input. Please enter a number for price and stock.")
+                print("Invalid input. Please enter valid inputs.")
 
         elif choice == "3":
             print("Update Stock")
