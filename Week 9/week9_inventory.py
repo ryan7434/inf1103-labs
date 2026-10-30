@@ -89,6 +89,24 @@ class DigitalProduct(Product):
         data["download_size"] = self.__download_size
         return data
 
+class SubscriptionProduct(Product):
+    def __init__(self, product_id, name, price, stock, duration):
+        super().__init__(product_id, name, price, stock)
+        self.__duration = duration
+
+    def display_information(self):
+        super().display_information()
+        print(f"Subscription Duration: {self.__duration} months")
+
+    def get_fulfilment_info(self):
+        return "This product provides a subscription based access."
+
+    def to_dict(self):
+        data = super().to_dict()
+        data["type"] = "subscription"
+        data["duration"] = self.__duration
+        return data
+
 class Inventory:
     def __init__(self):
         self.__products = []
@@ -145,6 +163,15 @@ def load_inventory():
                     item["price"],
                     item["stock"],
                     item["download_size"]
+                )
+
+            elif item["type"] == "subscription":
+                product = SubscriptionProduct(
+                    item["id"],
+                    item["name"],
+                    item["price"],
+                    item["stock"],
+                    item["duration"]
                 )
 
             else:
@@ -209,10 +236,11 @@ def main():
             print("Add New Product")
             print("1. Physical Product")
             print("2. Digital Product")
+            print("3. Subscription Product")
 
-            product_type = input("Enter product type (1 or 2): ")
+            product_type = input("Enter product type (1, 2, or 3): ")
 
-            if product_type not in ["1", "2"]:
+            if product_type not in ["1", "2", "3"]:
                 print("Invalid product type. Please try again.")
                 continue
 
@@ -241,7 +269,7 @@ def main():
 
                     product = PhysicalProduct(product_id, name, price, stock, weight)
 
-                else:
+                elif product_type == "2":
                     download_size = float(input("Enter Download Size (MB): "))
 
                     if download_size <= 0:
@@ -249,6 +277,15 @@ def main():
                         continue
 
                     product = DigitalProduct(product_id, name, price, stock, download_size)
+
+                elif product_type == "3":
+                    duration = int(input("Enter Subscription Duration (months): "))
+
+                    if duration <= 0:
+                        print("Duration must be greater than zero.")
+                        continue
+
+                    product = SubscriptionProduct(product_id, name, price, stock, duration)
 
                 inventory.add_product(product)
                 print("Product added successfully.")

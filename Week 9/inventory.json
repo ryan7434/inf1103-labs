@@ -14,5 +14,13 @@
         "stock": 10,
         "type": "digital",
         "download_size": 500.0
+    },
+    {
+        "id": "S001",
+        "name": "Premium Membership",
+        "price": 19.9,
+        "stock": 100,
+        "type": "subscription",
+        "duration": 12
     }
 ]
