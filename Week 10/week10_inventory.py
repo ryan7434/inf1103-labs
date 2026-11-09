@@ -17,11 +17,19 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INVENTORY_FILE = os.path.join(SCRIPT_DIR, "inventory.json")
 
 class Product(ABC):
-    def __init__(self, product_id, name, price, stock):
+    def __init__(
+        self,
+        product_id: str,
+        name: str,
+        price: float,
+        stock: int,
+        supplier: Supplier
+    ):
         self.__product_id = product_id
         self.__name = name
         self.__price = price
         self.__stock = stock
+        self.__supplier = supplier
 
     def get_product_id(self):
         return self.__product_id
@@ -34,6 +42,9 @@ class Product(ABC):
 
     def get_stock(self):
         return self.__stock
+
+    def get_supplier(self) -> Supplier:
+        return self.__supplier
 
     def to_dict(self):
         return {
@@ -52,6 +63,9 @@ class Product(ABC):
         print(f"Price: ${self.__price:.2f}")
         print(f"Stock: {self.__stock}")
 
+    def display_supplier_information(self) -> None:
+        self.__supplier.display_information()
+
     @abstractmethod
     def get_fulfilment_info(self):
         pass
@@ -63,8 +77,16 @@ class CanBeShipped(ABC):
         pass
 
 class PhysicalProduct(Product, CanBeShipped):
-    def __init__(self, product_id, name, price, stock, weight):
-        super().__init__(product_id, name, price, stock)
+    def __init__(
+            self,
+            product_id: str,
+            name: str,
+            price: float,
+            stock: int,
+            weight: float,
+            supplier: Supplier
+    ):
+        super().__init__(product_id, name, price, stock, supplier)
         self.__weight = weight
 
     def display_information(self):
@@ -84,8 +106,16 @@ class PhysicalProduct(Product, CanBeShipped):
         return data
 
 class DigitalProduct(Product):
-    def __init__(self, product_id, name, price, stock, download_size):
-        super().__init__(product_id, name, price, stock)
+    def __init__(
+            self,
+            product_id: str,
+            name: str,
+            price: float,
+            stock: int,
+            download_size: float,
+            supplier: Supplier
+    ):
+        super().__init__(product_id, name, price, stock, supplier)
         self.__download_size = download_size
 
     def display_information(self):
@@ -102,8 +132,16 @@ class DigitalProduct(Product):
         return data
 
 class SubscriptionProduct(Product):
-    def __init__(self, product_id, name, price, stock, duration):
-        super().__init__(product_id, name, price, stock)
+    def __init__(
+            self,
+            product_id: str,
+            name: str,
+            price: float,
+            stock: int,
+            duration: int,
+            supplier: Supplier
+    ):
+        super().__init__(product_id, name, price, stock, supplier)
         self.__duration = duration
 
     def display_information(self):
