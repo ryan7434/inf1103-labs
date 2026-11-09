@@ -31,22 +31,22 @@ class Product(ABC):
         self.__stock = stock
         self.__supplier = supplier
 
-    def get_product_id(self):
+    def get_product_id(self) -> str:
         return self.__product_id
     
-    def get_product_name(self):
+    def get_product_name(self) -> str:
         return self.__name
     
-    def get_product_price(self):
+    def get_product_price(self) -> float:
         return self.__price
 
-    def get_stock(self):
+    def get_stock(self) -> int:
         return self.__stock
 
     def get_supplier(self) -> Supplier:
         return self.__supplier
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             "id": self.__product_id,
             "name": self.__name,
@@ -54,10 +54,10 @@ class Product(ABC):
             "stock": self.__stock
         }
 
-    def update_stock(self, new_stock):
+    def update_stock(self, new_stock: int) -> None:
         self.__stock = new_stock
 
-    def display_information(self):
+    def display_information(self) -> None:
         print(f"ID: {self.__product_id}")
         print(f"Name: {self.__name}")
         print(f"Price: ${self.__price:.2f}")
@@ -67,13 +67,13 @@ class Product(ABC):
         self.__supplier.display_information()
 
     @abstractmethod
-    def get_fulfilment_info(self):
+    def get_fulfilment_info(self) -> str:
         pass
 
 class CanBeShipped(ABC):
 
     @abstractmethod
-    def calculate_shipping_cost(self):
+    def calculate_shipping_cost(self) -> float:
         pass
 
 class PhysicalProduct(Product, CanBeShipped):
@@ -89,17 +89,17 @@ class PhysicalProduct(Product, CanBeShipped):
         super().__init__(product_id, name, price, stock, supplier)
         self.__weight = weight
 
-    def display_information(self):
+    def display_information(self) -> None:
         super().display_information()
         print(f"Weight: {self.__weight} kg")
 
-    def get_fulfilment_info(self):
+    def get_fulfilment_info(self) -> str:
         return "This product requires physical shipping."
 
-    def calculate_shipping_cost(self):
+    def calculate_shipping_cost(self) -> float:
         return self.__weight * 5 
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         data = super().to_dict()
         data["type"] = "physical"
         data["weight"] = self.__weight
@@ -118,14 +118,14 @@ class DigitalProduct(Product):
         super().__init__(product_id, name, price, stock, supplier)
         self.__download_size = download_size
 
-    def display_information(self):
+    def display_information(self) -> None:
         super().display_information()
         print(f"Download Size: {self.__download_size} MB")
 
-    def get_fulfilment_info(self):
+    def get_fulfilment_info(self) -> str:
         return "This product can be delivered digitally."
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         data = super().to_dict()
         data["type"] = "digital"
         data["download_size"] = self.__download_size
@@ -144,14 +144,14 @@ class SubscriptionProduct(Product):
         super().__init__(product_id, name, price, stock, supplier)
         self.__duration = duration
 
-    def display_information(self):
+    def display_information(self) -> None:
         super().display_information()
         print(f"Subscription Duration: {self.__duration} months")
 
-    def get_fulfilment_info(self):
+    def get_fulfilment_info(self) -> str:
         return "This product provides a subscription based access."
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         data = super().to_dict()
         data["type"] = "subscription"
         data["duration"] = self.__duration
@@ -287,6 +287,9 @@ def save_inventory(inventory):
 
     print("Inventory saved successfully to inventory.json.")
 
+def show_product_details(product: Product) -> None:
+    product.display_information()
+    print(f"Fulfilment: {product.get_fulfilment_info()}")
 
 def main():
     inventory = load_inventory()
