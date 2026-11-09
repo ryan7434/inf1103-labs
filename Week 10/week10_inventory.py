@@ -159,12 +159,18 @@ class SubscriptionProduct(Product):
 
 class Inventory:
     def __init__(self):
-        self.__products = []
+        self.__products: list[Product] = []
 
-    def add_product(self, product):
+    def add_product(self, product: Product) -> None:
         self.__products.append(product)
 
-    def search_product(self, product_id):
+    def remove_product(self, product_id: str) -> None:
+        for product in self.__products:
+            if product.get_product_id() == product_id:
+                self.__products.remove(product)
+                return 
+
+    def find_product(self, product_id: str) -> Product | None:
         for product in self.__products:
             if product.get_product_id() == product_id:
                 return product
@@ -184,7 +190,7 @@ class Inventory:
             print(f"Fulfilment: {product.get_fulfilment_info()}")
             print("-" * 50)
 
-    def get_products(self):
+    def get_products(self) -> list[Product]:
         return self.__products
 
     
@@ -296,7 +302,7 @@ def main():
 
             product_id = input("Enter Product ID: ")
 
-            if inventory.search_product(product_id) is not None:
+            if inventory.find_product(product_id) is not None:
                 print("Product ID already exists.")
                 continue
 
@@ -347,7 +353,7 @@ def main():
             print("Update Stock")
             product_id = input("Enter Product ID: ")
 
-            product = inventory.search_product(product_id)
+            product = inventory.find_product(product_id)
 
             if product is not None:
                 print("Product found:")
@@ -375,7 +381,7 @@ def main():
             print("Search Product")
             product_id = input("Enter Product ID: ")
 
-            product = inventory.search_product(product_id)
+            product = inventory.find_product(product_id)
 
             if product is not None:
                 print("Product Found")
@@ -401,4 +407,42 @@ def main():
 
 #main()
 if __name__ == "__main__":
-    main()
+    #main()
+    supplier = Supplier(
+        "S001",
+        "Tech Supplies Pte Ltd",
+        "sales@techsupplies.com"
+    )
+
+    laptop = PhysicalProduct(
+        "P001",
+        "Laptop",
+        1200.00,
+        15,
+        2.5,
+        supplier
+    )
+
+    inventory_a = Inventory()
+    inventory_b = Inventory()
+
+    print("Adding laptop to Inventory A...")
+    inventory_a.add_product(laptop)
+
+    print("\nInventory A:")
+    inventory_a.display_all()
+
+    print("\nRemoving laptop from Inventory A...")
+    inventory_a.remove_product("P001")
+
+    print("\nInventory A after removal:")
+    inventory_a.display_all()
+
+    print("\nLaptop still exists:")
+    laptop.display_information()
+
+    print("\nAdding the same laptop to Inventory B...")
+    inventory_b.add_product(laptop)
+
+    print("\nInventory B:")
+    inventory_b.display_all()
