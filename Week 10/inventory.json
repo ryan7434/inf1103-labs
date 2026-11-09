@@ -1,0 +1,41 @@
+[
+    {
+        "id": "P001",
+        "name": "Laptop",
+        "price": 1200.0,
+        "stock": 20,
+        "supplier": {
+            "supplier_id": "SU001",
+            "name": "Asus",
+            "contact_email": "asus@support.com"
+        },
+        "type": "physical",
+        "weight": 2.0
+    },
+    {
+        "id": "D001",
+        "name": "Software",
+        "price": 99.0,
+        "stock": 10,
+        "supplier": {
+            "supplier_id": "SU002",
+            "name": "Google",
+            "contact_email": "google@support.com"
+        },
+        "type": "digital",
+        "download_size": 500.0
+    },
+    {
+        "id": "S001",
+        "name": "Premium Membership",
+        "price": 19.9,
+        "stock": 100,
+        "supplier": {
+            "supplier_id": "SU002",
+            "name": "Google",
+            "contact_email": "google@suport.com"
+        },
+        "type": "subscription",
+        "duration": 12
+    }
+]

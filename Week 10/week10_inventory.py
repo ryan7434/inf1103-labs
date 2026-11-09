@@ -51,7 +51,12 @@ class Product(ABC):
             "id": self.__product_id,
             "name": self.__name,
             "price": self.__price,
-            "stock": self.__stock
+            "stock": self.__stock,
+            "supplier": {
+                "supplier_id": self.__supplier.supplier_id,
+                "name": self.__supplier.name,
+                "contact_email": self.__supplier.contact_email
+            }
         }
 
     def update_stock(self, new_stock: int) -> None:
@@ -186,6 +191,7 @@ class Inventory:
 
         for product in self.__products:
             product.display_information()
+            product.display_supplier_information()
             print(f"Fulfilment: {product.get_fulfilment_info()}")
             print("-" * 50)
 
@@ -226,13 +232,29 @@ def load_inventory():
 
         for item in data:
 
+            supplier_data = item.get("supplier")
+            
+            if supplier_data:
+                supplier = Supplier(
+                supplier_data["supplier_id"],
+                supplier_data["name"],
+                supplier_data["contact_email"]
+                )
+            else:
+                supplier = Supplier(
+                "S000",
+                "Unknown Supplier",
+                "unknown@example.com"
+                )
+
             if item["type"] == "physical":
                 product = PhysicalProduct(
                     item["id"],
                     item["name"],
                     item["price"],
                     item["stock"],
-                    item["weight"]
+                    item["weight"],
+                    supplier
                 )
 
             elif item["type"] == "digital":
@@ -241,7 +263,8 @@ def load_inventory():
                     item["name"],
                     item["price"],
                     item["stock"],
-                    item["download_size"]
+                    item["download_size"],
+                    supplier
                 )
 
             elif item["type"] == "subscription":
@@ -250,7 +273,8 @@ def load_inventory():
                     item["name"],
                     item["price"],
                     item["stock"],
-                    item["duration"]
+                    item["duration"],
+                    supplier
                 )
 
             else:
@@ -274,7 +298,6 @@ def load_inventory():
         print("Inventory file uses an old or invalid format.")
         print("Please back up or remove the old inventory.json file.")
         return inventory
-
 
 def save_inventory(inventory):
     data = []
@@ -348,7 +371,17 @@ def main():
                         print("Weight must be greater than zero.")
                         continue
 
-                    product = PhysicalProduct(product_id, name, price, stock, weight)
+                    supplier_id = input("Enter Supplier ID: ")
+                    supplier_name = input("Enter Supplier Name: ")
+                    supplier_email = input("Enter Supplier Email: ")
+                    
+                    supplier = Supplier(
+                        supplier_id,
+                        supplier_name,
+                        supplier_email
+                        )
+
+                    product = PhysicalProduct(product_id, name, price, stock, weight, supplier)
 
                 elif product_type == "2":
                     download_size = float(input("Enter Download Size (MB): "))
@@ -357,7 +390,18 @@ def main():
                         print("Download size must be greater than zero.")
                         continue
 
-                    product = DigitalProduct(product_id, name, price, stock, download_size)
+                    supplier_id = input("Enter Supplier ID: ")
+                    supplier_name = input("Enter Supplier Name: ")
+                    supplier_email = input("Enter Supplier Email: ")
+                                        
+                    supplier = Supplier(
+                        supplier_id,
+                        supplier_name,
+                        supplier_email
+                    )
+                    
+
+                    product = DigitalProduct(product_id, name, price, stock, download_size, supplier)
 
                 elif product_type == "3":
                     duration = int(input("Enter Subscription Duration (months): "))
@@ -366,7 +410,17 @@ def main():
                         print("Duration must be greater than zero.")
                         continue
 
-                    product = SubscriptionProduct(product_id, name, price, stock, duration)
+                    supplier_id = input("Enter Supplier ID: ")
+                    supplier_name = input("Enter Supplier Name: ")
+                    supplier_email = input("Enter Supplier Email: ")
+                                        
+                    supplier = Supplier(
+                        supplier_id,
+                        supplier_name,
+                        supplier_email
+                    )
+
+                    product = SubscriptionProduct(product_id, name, price, stock, duration, supplier)
 
                 inventory.add_product(product)
                 print("Product added successfully.")
