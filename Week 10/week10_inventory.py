@@ -175,6 +175,8 @@ class Inventory:
                 self.__products.remove(product)
                 return
 
+        print(f"Product {product_id} not found.")
+
     def find_product(self, product_id: str) -> Product | None:
         for product in self.__products:
             if product.get_product_id() == product_id:
@@ -328,7 +330,8 @@ def main():
         print("3. Update Stock")
         print("4. Search Product")
         print("5. Save Inventory")
-        print("6. Exit")
+        print("6. Remove Product")
+        print("7. Exit")
         print("----------------------------")
 
         choice = input("Enter your choice: ")
@@ -475,6 +478,11 @@ def main():
             save_inventory(inventory)
 
         elif choice == "6":
+            product_id = input("Enter Product ID to remove: ")
+            
+            inventory.remove_product(product_id)
+
+        elif choice == "7":
             print("Saving inventory to inventory.json...")
             save_inventory(inventory)
             print("Thank you for using the Inventory Management System.")

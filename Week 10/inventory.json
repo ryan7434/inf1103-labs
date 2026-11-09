@@ -1,18 +1,5 @@
 [
     {
-        "id": "P001",
-        "name": "Laptop",
-        "price": 1200.0,
-        "stock": 20,
-        "supplier": {
-            "supplier_id": "SU001",
-            "name": "Asus",
-            "contact_email": "asus@support.com"
-        },
-        "type": "physical",
-        "weight": 2.0
-    },
-    {
         "id": "D001",
         "name": "Software",
         "price": 99.0,
