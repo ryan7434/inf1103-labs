@@ -168,16 +168,15 @@ class Inventory:
         for product in self.__products:
             if product.get_product_id() == product_id:
                 self.__products.remove(product)
-                return 
+                return
 
     def find_product(self, product_id: str) -> Product | None:
         for product in self.__products:
             if product.get_product_id() == product_id:
                 return product
-
         return None
 
-    def display_all(self):
+    def display_all(self) -> None:
         print("Current Inventory")
         print("-" * 50)
 
@@ -193,6 +192,30 @@ class Inventory:
     def get_products(self) -> list[Product]:
         return self.__products
 
+class OrderLine:
+    def __init__(self, product: Product, quantity: int):
+        self.product = product
+        self.quantity = quantity
+
+    def calculate_subtotal(self) -> float:
+        return self.product.get_product_price() * self.quantity
+
+class Order:
+    def __init__(self, order_id: str):
+        self.order_id = order_id
+        self.order_lines: list[OrderLine] = []
+
+    def add_order_line(self, product: Product, quantity: int) -> None:
+        order_line = OrderLine(product, quantity)
+        self.order_lines.append(order_line)
+
+    def calculate_total(self) -> float:
+        total = 0.0
+
+        for order_line in self.order_lines:
+            total += order_line.calculate_subtotal()
+
+        return total
     
 def load_inventory():
     inventory = Inventory()
@@ -263,7 +286,6 @@ def save_inventory(inventory):
         json.dump(data, file, indent=4)
 
     print("Inventory saved successfully to inventory.json.")
-
 
 
 def main():
@@ -407,42 +429,4 @@ def main():
 
 #main()
 if __name__ == "__main__":
-    #main()
-    supplier = Supplier(
-        "S001",
-        "Tech Supplies Pte Ltd",
-        "sales@techsupplies.com"
-    )
-
-    laptop = PhysicalProduct(
-        "P001",
-        "Laptop",
-        1200.00,
-        15,
-        2.5,
-        supplier
-    )
-
-    inventory_a = Inventory()
-    inventory_b = Inventory()
-
-    print("Adding laptop to Inventory A...")
-    inventory_a.add_product(laptop)
-
-    print("\nInventory A:")
-    inventory_a.display_all()
-
-    print("\nRemoving laptop from Inventory A...")
-    inventory_a.remove_product("P001")
-
-    print("\nInventory A after removal:")
-    inventory_a.display_all()
-
-    print("\nLaptop still exists:")
-    laptop.display_information()
-
-    print("\nAdding the same laptop to Inventory B...")
-    inventory_b.add_product(laptop)
-
-    print("\nInventory B:")
-    inventory_b.display_all()
+    main()
