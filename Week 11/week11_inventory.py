@@ -238,6 +238,9 @@ class BulkDiscount(DiscountStrategy):
 
         return total
 
+class StudentDiscount(DiscountStrategy):
+    def apply(self, total: float) -> float:
+        return total * 0.95
 
 class Order:
     def __init__(
@@ -534,6 +537,60 @@ def main():
 
         else:
             print("Invalid choice. Please try again.")
+
+def test_discount_strategy():
+    print("\n===== TEST: DISCOUNT STRATEGY =====")
+
+    order = Order("ORD001")
+
+    # Create a supplier
+    supplier = Supplier(
+        "S001",
+        "Test Supplier",
+        "test@example.com"
+    )
+
+    # Create products
+    laptop = PhysicalProduct(
+        "P001",
+        "Laptop",
+        100.00,
+        10,
+        2.0,
+        supplier
+    )
+
+    mouse = PhysicalProduct(
+        "P002",
+        "Mouse",
+        50.00,
+        20,
+        0.5,
+        supplier
+    )
+
+    # Add products to order
+    order.add_order_line(laptop, 2)   # $200
+    order.add_order_line(mouse, 1)    # $50
+
+    # Total = $250
+    print(f"Normal total: ${order.calculate_total():.2f}")
+
+    # Apply bulk discount
+    order.set_discount(BulkDiscount(200, 20))
+    print(f"Bulk discount total: ${order.calculate_total():.2f}")
+
+    # Apply percentage discount
+    order.set_discount(PercentageDiscount(10))
+    print(f"10% discount total: ${order.calculate_total():.2f}")
+
+    # Remove discount
+    order.set_discount(NoDiscount())
+    print(f"No discount total: ${order.calculate_total():.2f}")
+
+     # Apply student discount
+    order.set_discount(StudentDiscount())
+    print(f"Student discount total: ${order.calculate_total():.2f}")
 
 #main()
 if __name__ == "__main__":
