@@ -25,6 +25,14 @@ class Product(ABC):
         stock: int,
         supplier: Supplier
     ):
+        # Validate product price
+        if price <= 0:
+            raise ValueError("Product price must be greater than zero.")
+
+        # Validate product stock
+        if stock < 0:
+            raise ValueError("Product stock cannot be negative.")
+
         self.__product_id = product_id
         self.__name = name
         self.__price = price
@@ -60,6 +68,9 @@ class Product(ABC):
         }
 
     def update_stock(self, new_stock: int) -> None:
+        if new_stock < 0:
+            raise ValueError("Product stock cannot be negative.")
+
         self.__stock = new_stock
 
     def display_information(self) -> None:
@@ -249,6 +260,10 @@ class Inventory:
 
 class OrderLine:
     def __init__(self, product: Product, quantity: int):
+
+        if quantity <= 0:
+            raise ValueError("Order quantity must be greater than zero.")
+
         self.product = product
         self.quantity = quantity
 
@@ -717,6 +732,86 @@ def test_product_factory():
     except ValueError as e:
         print(f"\nError caught: {e}")
 
+def test_product_validation():
+    print("\n===== TEST: PRODUCT VALIDATION =====")
+
+    supplier = Supplier(
+        "S001",
+        "Test Supplier",
+        "test@example.com"
+    )
+
+    # Test invalid price
+    try:
+        ProductFactory.create(
+            "physical",
+            "P001",
+            "Laptop",
+            -100,
+            10,
+            supplier,
+            weight=2.5
+        )
+    except ValueError as e:
+        print(f"Invalid price caught: {e}")
+
+    # Test zero price
+    try:
+        ProductFactory.create(
+            "physical",
+            "P002",
+            "Mouse",
+            0,
+            10,
+            supplier,
+            weight=0.5
+        )
+    except ValueError as e:
+        print(f"Zero price caught: {e}")
+
+    # Test negative stock
+    try:
+        ProductFactory.create(
+            "physical",
+            "P003",
+            "Keyboard",
+            50,
+            -5,
+            supplier,
+            weight=1.0
+        )
+    except ValueError as e:
+        print(f"Invalid stock caught: {e}")
+
+    # Create a valid product for OrderLine tests
+    product = ProductFactory.create(
+        "physical",
+        "P004",
+        "Monitor",
+        200,
+        10,
+        supplier,
+        weight=3.0
+    )
+
+    # Test zero order quantity
+    try:
+        OrderLine(product, 0)
+    except ValueError as e:
+        print(f"Zero quantity caught: {e}")
+
+    # Test negative order quantity
+    try:
+        OrderLine(product, -2)
+    except ValueError as e:
+        print(f"Negative quantity caught: {e}")
+
+    # Test valid order quantity
+    order_line = OrderLine(product, 2)
+    print(
+        f"Valid order quantity accepted. "
+        f"Subtotal: ${order_line.calculate_subtotal():.2f}"
+    )
 #main()
 if __name__ == "__main__":
-    main()
+   main()
