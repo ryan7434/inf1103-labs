@@ -328,53 +328,59 @@ def load_inventory():
         for item in data:
 
             supplier_data = item.get("supplier")
-            
+
             if supplier_data:
                 supplier = Supplier(
-                supplier_data["supplier_id"],
-                supplier_data["name"],
-                supplier_data["contact_email"]
+                    supplier_data["supplier_id"],
+                    supplier_data["name"],
+                    supplier_data["contact_email"]
                 )
             else:
                 supplier = Supplier(
-                "S000",
-                "Unknown Supplier",
-                "unknown@example.com"
+                    "S000",
+                    "Unknown Supplier",
+                    "unknown@example.com"
                 )
 
-            if item["type"] == "physical":
-                product = PhysicalProduct(
+            # Use ProductFactory to create the product
+            product_type = item["type"]
+
+            if product_type == "physical":
+                product = ProductFactory.create(
+                    product_type,
                     item["id"],
                     item["name"],
                     item["price"],
                     item["stock"],
-                    item["weight"],
-                    supplier
+                    supplier,
+                    weight=item["weight"]
                 )
 
-            elif item["type"] == "digital":
-                product = DigitalProduct(
+            elif product_type == "digital":
+                product = ProductFactory.create(
+                    product_type,
                     item["id"],
                     item["name"],
                     item["price"],
                     item["stock"],
-                    item["download_size"],
-                    supplier
+                    supplier,
+                    download_size=item["download_size"]
                 )
 
-            elif item["type"] == "subscription":
-                product = SubscriptionProduct(
+            elif product_type == "subscription":
+                product = ProductFactory.create(
+                    product_type,
                     item["id"],
                     item["name"],
                     item["price"],
                     item["stock"],
-                    item["duration"],
-                    supplier
+                    supplier,
+                    duration=item["duration"]
                 )
 
             else:
                 print("Unknown product type. Skipping item.")
-                continue    
+                continue
 
             inventory.add_product(product)
 
@@ -384,7 +390,7 @@ def load_inventory():
     except FileNotFoundError:
         print("Inventory file not found. Starting with empty inventory.")
         return inventory
-    
+
     except json.JSONDecodeError:
         print("Invalid data in inventory file. Starting with empty inventory.")
         return inventory
@@ -460,63 +466,75 @@ def main():
                     print("Price and stock cannot be negative.")
                     continue
 
+                # Get supplier information
+                supplier_id = input("Enter Supplier ID: ")
+                supplier_name = input("Enter Supplier Name: ")
+                supplier_email = input("Enter Supplier Email: ")
+
+                supplier = Supplier(
+                    supplier_id,
+                    supplier_name,
+                    supplier_email
+                )
+
+                # Create the product using ProductFactory
                 if product_type == "1":
+
                     weight = float(input("Enter Product Weight (kg): "))
 
                     if weight < 0:
                         print("Weight must be greater than zero.")
                         continue
 
-                    supplier_id = input("Enter Supplier ID: ")
-                    supplier_name = input("Enter Supplier Name: ")
-                    supplier_email = input("Enter Supplier Email: ")
-                    
-                    supplier = Supplier(
-                        supplier_id,
-                        supplier_name,
-                        supplier_email
-                        )
-
-                    product = PhysicalProduct(product_id, name, price, stock, weight, supplier)
+                    product = ProductFactory.create(
+                        "physical",
+                        product_id,
+                        name,
+                        price,
+                        stock,
+                        supplier,
+                        weight=weight
+                    )
 
                 elif product_type == "2":
-                    download_size = float(input("Enter Download Size (MB): "))
+
+                    download_size = float(
+                        input("Enter Download Size (MB): ")
+                    )
 
                     if download_size <= 0:
                         print("Download size must be greater than zero.")
                         continue
 
-                    supplier_id = input("Enter Supplier ID: ")
-                    supplier_name = input("Enter Supplier Name: ")
-                    supplier_email = input("Enter Supplier Email: ")
-                                        
-                    supplier = Supplier(
-                        supplier_id,
-                        supplier_name,
-                        supplier_email
+                    product = ProductFactory.create(
+                        "digital",
+                        product_id,
+                        name,
+                        price,
+                        stock,
+                        supplier,
+                        download_size=download_size
                     )
-                    
-
-                    product = DigitalProduct(product_id, name, price, stock, download_size, supplier)
 
                 elif product_type == "3":
-                    duration = int(input("Enter Subscription Duration (months): "))
+
+                    duration = int(
+                        input("Enter Subscription Duration (months): ")
+                    )
 
                     if duration <= 0:
                         print("Duration must be greater than zero.")
                         continue
 
-                    supplier_id = input("Enter Supplier ID: ")
-                    supplier_name = input("Enter Supplier Name: ")
-                    supplier_email = input("Enter Supplier Email: ")
-                                        
-                    supplier = Supplier(
-                        supplier_id,
-                        supplier_name,
-                        supplier_email
+                    product = ProductFactory.create(
+                        "subscription",
+                        product_id,
+                        name,
+                        price,
+                        stock,
+                        supplier,
+                        duration=duration
                     )
-
-                    product = SubscriptionProduct(product_id, name, price, stock, duration, supplier)
 
                 inventory.add_product(product)
                 print("Product added successfully.")
@@ -571,8 +589,8 @@ def main():
             save_inventory(inventory)
 
         elif choice == "6":
-            product_id = input("Enter Product ID to remove: ")
-            
+            product_id = input("Enter Product ID to remove:")
+
             inventory.remove_product(product_id)
 
         elif choice == "7":
