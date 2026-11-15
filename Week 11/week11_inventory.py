@@ -162,6 +162,53 @@ class SubscriptionProduct(Product):
         data["duration"] = self.__duration
         return data
 
+class ProductFactory:
+    @staticmethod
+    def create(
+        product_type: str,
+        product_id: str,
+        name: str,
+        price: float,
+        stock_quantity: int,
+        supplier: Supplier,
+        weight: float = 0.0,
+        download_size: float = 0.0,
+        duration: int = 0
+    ) -> Product:
+
+        if product_type == "physical":
+            return PhysicalProduct(
+                product_id,
+                name,
+                price,
+                stock_quantity,
+                weight,
+                supplier
+            )
+
+        elif product_type == "digital":
+            return DigitalProduct(
+                product_id,
+                name,
+                price,
+                stock_quantity,
+                download_size,
+                supplier
+            )
+
+        elif product_type == "subscription":
+            return SubscriptionProduct(
+                product_id,
+                name,
+                price,
+                stock_quantity,
+                duration,
+                supplier
+            )
+
+        else:
+            raise ValueError(f"Unknown product type: {product_type}")
+        
 class Inventory:
     def __init__(self):
         self.__products: list[Product] = []
@@ -591,6 +638,66 @@ def test_discount_strategy():
      # Apply student discount
     order.set_discount(StudentDiscount())
     print(f"Student discount total: ${order.calculate_total():.2f}")
+
+def test_product_factory():
+    print("\n===== TEST: PRODUCT FACTORY =====")
+
+    supplier = Supplier(
+        "S001",
+        "Test Supplier",
+        "test@example.com"
+    )
+
+    physical = ProductFactory.create(
+        "physical",
+        "P001",
+        "Laptop",
+        1200.00,
+        10,
+        supplier,
+        weight=2.5
+    )
+
+    digital = ProductFactory.create(
+        "digital",
+        "D001",
+        "E-Book",
+        20.00,
+        50,
+        supplier,
+        download_size=10.0
+    )
+
+    subscription = ProductFactory.create(
+        "subscription",
+        "S001",
+        "Software Subscription",
+        30.00,
+        5,
+        supplier,
+        duration=12
+    )
+
+    print("\nPhysical Product:")
+    physical.display_information()
+
+    print("\nDigital Product:")
+    digital.display_information()
+
+    print("\nSubscription Product:")
+    subscription.display_information()
+
+    try:
+        ProductFactory.create(
+            "service",
+            "X001",
+            "Installation",
+            30.00,
+            5,
+            supplier
+        )
+    except ValueError as e:
+        print(f"\nError caught: {e}")
 
 #main()
 if __name__ == "__main__":
