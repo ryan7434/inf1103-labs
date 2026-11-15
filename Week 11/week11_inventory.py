@@ -1,5 +1,6 @@
 import os
 import json
+import csv
 from abc import ABC, abstractmethod
 
 class Supplier:
@@ -332,7 +333,21 @@ class Order:
             total += order_line.calculate_subtotal()
 
         return self.discount.apply(total)
-    
+
+def get_positive_float(prompt: str) -> float:
+    while True:
+        try:
+            value = float(input(prompt))
+
+            if value <= 0:
+                print("Please enter a number greater than zero.")
+                continue
+
+            return value
+
+        except ValueError:
+            print("Please enter a valid number, e.g. 12.50")
+
 def load_inventory():
     inventory = Inventory()
 
@@ -415,6 +430,53 @@ def load_inventory():
         print("Please back up or remove the old inventory.json file.")
         return inventory
 
+def load_products(path: str, inventory: Inventory, supplier: Supplier) -> None:
+    loaded = 0
+
+    try:
+        file = open(path, newline="")
+
+    except FileNotFoundError:
+        print(f"Products file not found: {path}")
+
+    else:
+        with file:
+            reader = csv.reader(file)
+
+            # Skip the header row
+            next(reader, None)
+
+            for row in reader:
+                try:
+                    product_type = row[0]
+                    product_id = row[1]
+                    name = row[2]
+                    price = float(row[3])
+                    stock_quantity = int(row[4])
+
+                    product = ProductFactory.create(
+                        product_type,
+                        product_id,
+                        name,
+                        price,
+                        stock_quantity,
+                        supplier
+                    )
+
+                    inventory.add_product(product)
+                    loaded += 1
+
+                except ValueError as e:
+                    print(f"Skipping invalid row {row}: {e}")
+
+                except (IndexError, TypeError) as e:
+                    print(f"Skipping invalid row {row}: {e}")
+
+        print(f"{loaded} products loaded.")
+
+    finally:
+        print("Load attempt finished.")
+
 def save_inventory(inventory):
     data = []
 
@@ -474,7 +536,7 @@ def main():
             name = input("Enter Product Name: ")
 
             try:
-                price = float(input("Enter Product Price: "))
+                price = get_positive_float("Enter Product Price: ")
                 stock = int(input("Enter Product Stock: "))
 
                 if price < 0 or stock < 0:
@@ -812,6 +874,23 @@ def test_product_validation():
         f"Valid order quantity accepted. "
         f"Subtotal: ${order_line.calculate_subtotal():.2f}"
     )
+
+def test_load_products():
+    inventory = Inventory()
+
+    supplier = Supplier(
+        "S001",
+        "Test Supplier",
+        "test@example.com"
+    )
+
+    products_file = os.path.join(SCRIPT_DIR, "products.csv")
+
+    load_products(products_file, inventory, supplier)
+
+    print("\nProducts loaded into inventory:")
+    inventory.display_all()
+
 #main()
 if __name__ == "__main__":
    main()
